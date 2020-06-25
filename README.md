@@ -248,7 +248,7 @@ time ./../software/longranger-2.2.2/longranger targeted \
     --vcmode=freebayes
 ```
 
-## Varinat Correctness benchmark
+## Variant correctness benchmark
 
 hap.py
 ```
