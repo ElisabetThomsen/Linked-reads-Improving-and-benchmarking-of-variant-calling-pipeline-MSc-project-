@@ -35,7 +35,14 @@ conda env create -f <env_name.yml>
 ```
 The software were found by searching on https://anaconda.org/
 
-
+Environments were activated with
+```
+conda activate <env_name>
+```
+Show list of environments
+```
+conda env list
+```
 ## Downloading data and making subsets
 
 10X exome data of NA12878
