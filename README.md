@@ -4,7 +4,7 @@
 This repository serves the purpose of being a supplement to my hand-in of my MSc thesis.
 Here the majority of commands and scripts used undir the MSc project can be found.
 
-Please see the MSc thesis in the doc folder for more details of the projects purpose, methods and results.
+Please see the MSc thesis in the doc folder for more details of the project's purpose, methods and results.
 
 The content of the bash scripts and other unix commands are found beneath here. The python and R scripts are found in the script folder. The used nextflow.config-files and timelines of the pipelines are in the nextflow folder.
 
