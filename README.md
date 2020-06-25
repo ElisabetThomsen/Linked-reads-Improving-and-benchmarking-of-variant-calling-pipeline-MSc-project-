@@ -36,15 +36,114 @@ conda env create -f <env_name.yml>
 The software were found by searching on https://anaconda.org/
 
 
-## Downloading data
+## Downloading data and making subsets
 
+10X exome data of NA12878
+```
+wget http://cf.10xgenomics.com/samples/genome/2.1.4/NA12878_WES_v2/NA12878_WES_v2_fastqs.tar
+tar -xvf NA12878_WES_v2_fastqs.tar
+```
 Make subset (1000 reads) of data for testing
+```
+less /path/to/NA12878_WES_v2_fastqs/NA12878_WES_v2_S1_L004_R1_001.fastq.gz | head -1000 > new_name_L004_R1.fastq
+```
 
-Make dataset with only barcode contaminated reads
+Make subset with only barcode contaminated reads
+```
+mkdir NA12878_bctrimmed
+mkdir NA12878_withbc
+
+# For these R2 files ..
+for file in $(ls /path/to/10xdata/NA12878_WES_v2/*R2*fastq.gz)
+do
+
+# This is the belonging R1
+r1=$(echo $file | sed 's/R2/R1/')
+
+# Change name, so they will be seperated into bctrimmed and withbc folders
+out2=$(echo $file | sed 's/.*_v2\//NA12878_bctrimmed\//' | sed 's/.gz//')
+out_org=$(echo $file | sed 's/.*_v2\//NA12878_withbc\//' | sed 's/.gz//')
+
+# Trim them, and save only reads that had barcode contamination (all contaminated reads are printed before and after trim, into seperate files)
+echo Trimming $file ...
+time ./trimR2bc_whitelist.py $r1 $file /path/to/whitelist/4M-with-alts-february-2016.txt $out2 $out_org 1>>NA12878_bctrim_stats.txt
+
+#### Filter the R1s that belong to the trimmed R2s ####
+
+mkdir tmp
+
+# Name all the files, so we can use them in repair.sh
+r1_bctrim_sync=$(echo $out2 | sed 's/R2/R1/')
+r2_bctrim_sync=$(echo $out2 | sed 's/NA12878_bctrimmed/tmp/')
+s_bctrim_sync=$(echo $out2 | sed 's/R2/s/' | sed 's/NA12878_bctrimmed/tmp/')
+
+# Syncronize the R1 and R2 files
+echo Synchronizing $r1 and $out2 ...
+time repair.sh in1=$r1 in2=$out2 out1=$r1_bctrim_sync out2=$r2_bctrim_sync outs=$s_bctrim_sync repair 2>>repair.log
+
+# Gzip them
+echo gzipping $r1_bctrim_sync and $out2 ...
+gzip $r1_bctrim_sync
+gzip $out2
+
+# Do the same for the untrimmed file
+r1_withbc_sync=$(echo $out_org | sed 's/R2/R1/')
+r2_withbc_sync=$(echo $out_org | sed 's/NA12878_withbc/tmp/')
+s_withbc_sync=$(echo $out_org | sed 's/R2/s/' | sed 's/NA12878_withbc/tmp/')
+echo Synchronizing $r1 and $out_org ...
+time repair.sh in1=$r1 in2=$out_org out1=$r1_withbc_sync out2=$r2_withbc_sync outs=$s_withbc_sync repair 2>>repair.log
+echo gzipping $r1_withbc_sync and $out_org ...
+gzip $r1_withbc_sync
+gzip $out_org
+
+# Clean up
+rm -rf tmp
+
+done
+```
 
 ## Downloading references
 
+GRCh38 were downloaded with the gatk_bundle.sh provided in linkseq repository (https://github.com/olavurmortensen/linkseq/tree/master/reference).
+
+b37
+```
+# Reference genome
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/human_g1k_v37.fasta.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/human_g1k_v37.fasta.fai.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/human_g1k_v37.dict.gz
+
+# Known variants
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_phase3_v4_20130502.sites.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_phase3_v4_20130502.sites.vcf.gz.tbi
+
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_omni2.5.b37.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_omni2.5.b37.vcf.idx.gz
+
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_phase1.snps.high_confidence.b37.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/1000G_phase1.snps.high_confidence.b37.vcf.idx.gz
+
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/dbsnp_138.b37.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/dbsnp_138.b37.vcf.idx.gz
+
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/Mills_and_1000G_gold_standard.indels.b37.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/Mills_and_1000G_gold_standard.indels.b37.vcf.idx.gz
+
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/hapmap_3.3.b37.vcf.gz
+wget ftp://gsapubftp-anonymous@ftp.broadinstitute.org/bundle/b37/hapmap_3.3.b37.vcf.idx.gz
+```
+All files except 1000G_phase3_v4_20130502.sites.vcf.gz and 1000G_phase3_v4_20130502.sites.vcf.gz.tbi were then gunzipped with
+```
+gunzip <filename>
+```
+index b37 reference
+```
+bwa index -a bwtsw human_g1k_v37.fasta
+```
+
 ### Modifying bedfiles
+The targets BED-files were downloaded from Agilent’s webpage ( https://earray.chem.agilent.com/suredesign/ ) and then modified.
+
 <b>GRCh38</b> - adding 0 and . in the 5th and 6th column
 ```
 awk 'BEGIN{OFS="\t"}{ if(NR <= 2) { print "#"$0 } else { print $1,$2,$3,$4,0,"." } }' ../sureselect_human_all_exon_v6_utr_grch38/S07604624_Padded.bed > S07604624_Padded_UTR_modified.bed
