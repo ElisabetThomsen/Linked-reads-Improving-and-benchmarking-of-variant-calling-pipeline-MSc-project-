@@ -373,13 +373,3 @@ bedtools intersect -a $LS -b $LR -wa | uniq | wc -l
 echo LS intersect with LR and GB
 bedtools intersect -header -a $GB -b $LS -wa | bedtools intersect -a stdin -b $LR -wa | uniq | wc -l
 ```
-
-To upload:
-benchmark.yml
-addRG.py
-seperateTPFP.py
-TPFPhisto.R
-Modified demux
-newflow.config (main)
-modified trimR2bc.py
-venndiagram.R
