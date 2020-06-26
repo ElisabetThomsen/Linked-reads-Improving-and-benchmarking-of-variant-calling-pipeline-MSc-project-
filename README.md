@@ -247,15 +247,21 @@ Run the joint_genotyping script
 time nextflow run /path/to/linkseq/joint_genotyping.nf -c nextflow.config --gvcf_path "/path/to/gvcf_folder" -with-report NA12878_report_joint.html -with-timeline NA12878_timeline_joint.html -resume
 ```
 
+LinkSeq's scripts can be found here: https://github.com/olavurmortensen/linkseq
+
 ## Running Long Ranger
+Restricted
 ```
 time ./../software/longranger-2.2.2/longranger targeted \
     --id=NA12878 \
     --reference=/path/to/refdata-GRCh38-2.1.0 \
     --fastqs=/path/to/10xdata/NA12878_WES_v2 \
     --targets=/path/to/SureSelect_Human_All_Exon_V6_r2_hg38/S07604514_Padded.bed \
-    --vcmode=freebayes
+    --vcmode=freebayes \
+    --localcores=4 \
+    --localmem=20
 ```
+To be unrestricted localcores and localmem was removed.
 
 ## Variant correctness benchmark
 
