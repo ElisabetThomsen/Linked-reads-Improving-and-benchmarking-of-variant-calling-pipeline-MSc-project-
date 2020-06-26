@@ -1,0 +1,14 @@
+# To create env, run: conda env create -f benchmark_env.yml
+
+# Name of the environment
+name: benchmark
+
+channels:
+    - bioconda
+    - anaconda
+    - conda-forge
+
+# Software to install in the environment
+dependencies:
+    - nextflow=19.10.0
+    - hap.py=0.3.12
