@@ -43,6 +43,8 @@ Show list of environments
 ```
 conda env list
 ```
+See benchmark_env.yml as an example
+
 ## Downloading data and making subsets
 
 10X exome data of NA12878
