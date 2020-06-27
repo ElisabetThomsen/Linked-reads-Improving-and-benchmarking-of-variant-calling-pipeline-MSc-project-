@@ -6,7 +6,7 @@ Here the majority of commands and scripts used undir the MSc project can be foun
 
 Please see the MSc thesis in the doc folder for more details of the project's purpose, methods and results.
 
-The content of the bash scripts and other unix commands are found beneath here. The python and R scripts are found in the script folder. The used nextflow.config-files and timelines of the pipelines are in the nextflow folder.
+The content of the bash scripts and other unix commands are found beneath here. The python and R scripts are found in the script folder. The used nextflow.config-files and timelines of the pipelines are in the nextflow folder. The BQSR report for NA12878 and the hard filter parameter threshold plots are in the result folder.
 
 ## Rancher
 To get access to the server rancher was used. Following commands were used:
